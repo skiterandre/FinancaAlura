@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Finanças</string>
+    <string name="adiciona_receita">Adiciona receita</string>
+    <string name="adiciona_despesa">Adiciona despesa</string>
+    <string name="receita">Receita</string>
+    <string name="despesa">Despesa</string>
+    <string name="total">Total</string>
+</resources>
