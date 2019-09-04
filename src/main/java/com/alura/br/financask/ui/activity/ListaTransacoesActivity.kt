@@ -2,10 +2,12 @@ package com.alura.br.financask.ui.activity
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.alura.br.financask.R
-import com.alura.br.financask.delegate.TransacaoDelegate
 import com.alura.br.financask.model.Tipo
 import com.alura.br.financask.model.Transacao
 import com.alura.br.financask.ui.ResumoView
@@ -73,18 +75,30 @@ class ListaTransacoesActivity : AppCompatActivity() {
                 val transacao = transacoes[posicao]
                 chamaDialogDeAlteracao(transacao, posicao)
             }
+            
+            setOnCreateContextMenuListener { menu, view, contextMenuInfo ->
+                menu.add(Menu.NONE,1,Menu.NONE,"Remover")
+            }
         }
+    }
+
+    override fun onContextItemSelected(item: MenuItem?): Boolean {
+        when(item?.itemId){
+            1 ->{
+                Toast.makeText(this, "Remover Clicado", Toast.LENGTH_LONG).show()
+            }
+        }
+        return super.onContextItemSelected(item)
     }
 
     private fun chamaDialogDeAdicao(tipo: Tipo) {
         AdicionaTransacaoDialog(viewGroupDaActivity, this)
-            .chama(tipo
-                , transacaoDelegate = object : TransacaoDelegate {
-                    override fun delegate(transacao: Transacao) {
-                        adiciona(transacao)
-                        lista_transacoes_adiciona_menu.close(true)
-                    }
-                })
+            .chama(tipo) {
+                adiciona(it)
+                lista_transacoes_adiciona_menu.close(true)
+            }
+
+
     }
 
     private fun chamaDialogDeAlteracao(
@@ -92,13 +106,10 @@ class ListaTransacoesActivity : AppCompatActivity() {
         posicao: Int
     ) {
         AlteraTransacaoDialog(viewGroupDaActivity, this).chama(
-            transacao,
-            object : TransacaoDelegate {
-                override fun delegate(transacao: Transacao) {
-                    altera(transacao, posicao)
-                }
-
-            })
+            transacao
+        ) {
+            altera(it, posicao)
+        }
     }
 
     private fun altera(transacao: Transacao, posicao: Int) {
