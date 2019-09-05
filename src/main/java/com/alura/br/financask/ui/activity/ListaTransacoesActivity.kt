@@ -6,8 +6,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.AdapterView
 import com.alura.br.financask.R
+import com.alura.br.financask.dao.TransacaoDAO
 import com.alura.br.financask.model.Tipo
 import com.alura.br.financask.model.Transacao
 import com.alura.br.financask.ui.ResumoView
@@ -18,7 +19,8 @@ import kotlinx.android.synthetic.main.activity_lista_transacoes.*
 
 class ListaTransacoesActivity : AppCompatActivity() {
 
-    private var transacoes: MutableList<Transacao> = mutableListOf()
+    private val dao = TransacaoDAO()
+    private var transacoes = dao.transacoes
     private val viewDaActivity: View by lazy {
         window.decorView
     }
@@ -51,7 +53,7 @@ class ListaTransacoesActivity : AppCompatActivity() {
 
 
     private fun adiciona(transacao: Transacao) {
-        transacoes.add(transacao)
+        dao.adiciona(transacao)
         atualizaTransacoes()
     }
 
@@ -59,7 +61,6 @@ class ListaTransacoesActivity : AppCompatActivity() {
         configuraLista()
         configuraResumo()
     }
-
 
     private fun configuraResumo() {
         ResumoView(this, viewDaActivity, transacoes).configuraResumo()
@@ -76,7 +77,7 @@ class ListaTransacoesActivity : AppCompatActivity() {
                 chamaDialogDeAlteracao(transacao, posicao)
             }
             
-            setOnCreateContextMenuListener { menu, view, contextMenuInfo ->
+            setOnCreateContextMenuListener { menu, _, _ ->
                 menu.add(Menu.NONE,1,Menu.NONE,"Remover")
             }
         }
@@ -85,10 +86,17 @@ class ListaTransacoesActivity : AppCompatActivity() {
     override fun onContextItemSelected(item: MenuItem?): Boolean {
         when(item?.itemId){
             1 ->{
-                Toast.makeText(this, "Remover Clicado", Toast.LENGTH_LONG).show()
+                val adapterMenuInfo = item.menuInfo as AdapterView.AdapterContextMenuInfo
+                val posicaoDaTransacao = adapterMenuInfo.position
+                remove(posicaoDaTransacao)
             }
         }
         return super.onContextItemSelected(item)
+    }
+
+    private fun remove(posicao: Int) {
+        dao.remove(posicao)
+        atualizaTransacoes()
     }
 
     private fun chamaDialogDeAdicao(tipo: Tipo) {
@@ -97,7 +105,6 @@ class ListaTransacoesActivity : AppCompatActivity() {
                 adiciona(it)
                 lista_transacoes_adiciona_menu.close(true)
             }
-
 
     }
 
@@ -113,7 +120,7 @@ class ListaTransacoesActivity : AppCompatActivity() {
     }
 
     private fun altera(transacao: Transacao, posicao: Int) {
-        transacoes[posicao] = transacao
+        dao.altera(transacao, posicao)
         atualizaTransacoes()
     }
 
